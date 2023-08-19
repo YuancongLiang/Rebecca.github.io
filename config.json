@@ -1,0 +1,84 @@
+{
+    "log": {
+      "loglevel": "warning", 
+      "access": "/home/vpsadmin/xray_log/access.log", 
+      "error": "/home/vpsadmin/xray_log/error.log"
+    },
+    "dns": {
+      "servers": [
+        "https+local://1.1.1.1/dns-query", 
+        "localhost"
+      ]
+    },
+    "routing": {
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "type": "field",
+          "ip": [
+            "geoip:private" 
+          ],
+          "outboundTag": "block" 
+        },
+        {
+
+          "type": "field",
+          "ip": ["geoip:cn"],
+          "outboundTag": "block"
+        },
+
+        {
+          "type": "field",
+          "domain": [
+            "geosite:category-ads-all"
+          ],
+          "outboundTag": "block" 
+        }
+      ]
+    },
+    "inbounds": [
+      {
+        "port": 443,
+        "protocol": "vless",
+        "settings": {
+          "clients": [
+            {
+              "id": "4667ca6b-4d54-4c51-9995-883551327292", 
+              "flow": "xtls-rprx-vision",
+              "level": 0,
+              "email": "root@seramasumi.top"
+            }
+          ],
+          "decryption": "none",
+          "fallbacks": [
+            {
+              "dest": 10315 
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "security": "tls",
+          "tlsSettings": {
+            "alpn": "http/1.1",
+            "certificates": [
+              {
+                "certificateFile": "/root/xray_cert/xray.crt",
+                "keyFile": "/root/xray_cert/xray.key"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  }
